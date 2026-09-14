@@ -1,0 +1,1 @@
+from .friepedia_webinars import FriepediaWebinarsEngine as friepedia_webinars
