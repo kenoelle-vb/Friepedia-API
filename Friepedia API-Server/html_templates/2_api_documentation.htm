@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Forge: Friepedia API Documentation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --frie-teal: #088395;
+            --frie-teal-dark: #066b7a;
+            --frie-gray: #4e4b4c;
+            --frie-light-gray: #a6a1a3;
+            --frie-bg: #fafafa;
+            --frie-white: #ffffff;
+            --frie-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --frie-border: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--frie-bg);
+            color: var(--frie-gray);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Bar */
+        .top-nav {
+            background: var(--frie-white);
+            border-bottom: 1px solid var(--frie-border);
+            padding: 15px 5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-logo {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: var(--frie-teal);
+            text-transform: lowercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--frie-gray);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--frie-teal);
+        }
+
+        /* Container Settings */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 60px auto;
+        }
+
+        .doc-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .doc-header h1 {
+            color: var(--frie-teal-dark);
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+
+        .doc-header p {
+            font-size: 1.2em;
+            color: var(--frie-light-gray);
+        }
+
+        /* Section Cards */
+        .doc-card {
+            background: var(--frie-white);
+            border-radius: 15px;
+            border: 1px solid var(--frie-border);
+            box-shadow: var(--frie-shadow);
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+
+        h2.section-title {
+            color: var(--frie-teal);
+            border-left: 5px solid var(--frie-teal);
+            padding-left: 15px;
+            margin-top: 0;
+        }
+
+        /* Code Tabs */
+        .code-tabs {
+            display: flex;
+            background: #f1f3f4;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+            border: 1px solid var(--frie-border);
+            border-bottom: none;
+        }
+
+        .code-tab-btn {
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+            color: var(--frie-gray);
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .code-tab-btn.active {
+            background: #0d1117; /* Matches code block bg */
+            color: var(--frie-white);
+        }
+
+        .code-content {
+            display: none;
+            background: #0d1117;
+            border-radius: 0 0 8px 8px;
+            padding: 30px;
+            overflow-x: auto;
+            border: 1px solid var(--frie-border);
+            border-top: none;
+        }
+
+        .code-content.active {
+            display: block;
+        }
+
+        pre { margin: 0; font-size: 1.05em; line-height: 1.6; }
+
+        /* Logic Breakdown */
+        .logic-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .logic-item {
+            display: flex;
+            align-items: flex-start;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .logic-num {
+            background: var(--frie-teal);
+            color: white;
+            min-width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Schema Explorer Tab System */
+        .schema-explorer {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .media-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .media-btn {
+            background: #f1f3f4;
+            border: 1px solid var(--frie-border);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--frie-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .media-btn:hover {
+            border-color: var(--frie-teal);
+            color: var(--frie-teal);
+        }
+
+        .media-btn.active {
+            background: var(--frie-teal);
+            color: white;
+            border-color: var(--frie-teal);
+        }
+
+        .schema-table-container {
+            display: none;
+            overflow-x: auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .schema-table-container.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+
+        th {
+            background: var(--frie-teal);
+            color: white;
+            text-align: left;
+            padding: 15px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) { background: #f9f9f9; }
+        tr:hover { background: #f1f5f5; }
+
+        .badge-nlp {
+            background: #e1f5f7;
+            color: var(--frie-teal-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            border: 1px solid var(--frie-teal);
+        }
+
+        .badge-vector {
+            background: #2b2b2b;
+            color: #4af626;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-family: 'Consolas', monospace;
+        }
+
+        .example-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+            background: #f4f4f4;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 2px solid var(--frie-teal);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-logo">friepedia</div>
+        <div class="nav-links">
+            <a href="#implementation" class="active">API Implementation</a>
+            <a href="#schema">Response Schemas (15 Media Types)</a>
+            <a href="#schema-json">JSON Schemas</a>
+            <a href="#support">Support</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="doc-card" id="implementation">
+            <h2 class="section-title">1. Connection & Implementation</h2>
+            <p>The Friepedia API returns tabular (xlsx, csv, etc.) data points (dataframe, columns and rows) which can be made into DataFrames or JSON objects.</p>
+            
+            <div style="margin-top: 30px;">
+                <div class="code-tabs">
+                    <button class="code-tab-btn active" onclick="switchCode('lib')"><i class="fa-brands fa-python"></i> friepedia (Native Import)</button>
+                    <button class="code-tab-btn" onclick="switchCode('rest')"><i class="fa-solid fa-server"></i> requests (REST API)</button>
+                </div>
+
+                <div id="code-lib" class="code-content active">
+<pre><code class="language-python"># Install via terminal: pip install friepedia
+import pandas as pd
+from friepedia import friepedia_pdf_summary
+
+# 1. Initialize the Engine
+engine = friepedia_pdf_summary(api_key="FRIE-XXXXXXXX")
+
+# 2. Execute Deep-Vector Search
+# Automatically vectorizes query and returns high-fidelity data
+df_results = engine.search(
+    query="Digital Banking Transformation",
+    top_k=5
+)
+
+# 3. Analyze Intelligence
+if not df_results.empty:
+    print(f"Discovery Complete. Found {len(df_results)} strategic points.")
+    display(df_results[['Title', 'top_entities', 'top_stats']])
+</code></pre>
+                </div>
+
+                <div id="code-rest" class="code-content">
+<pre><code class="language-python">import requests
+import pandas as pd
+
+# 1. Configuration & Authentication
+URL = "http://api.friepedia.com/v1/pdf_summary/search"
+headers = {"Authorization": "Bearer FRIE-XXXXXXXX"}
+
+# 2. Configure Payload
+payload = {
+    "query": "Digital Banking Transformation",
+    "top_k": 5,
+    "include_vectors": True
+}
+
+# 3. Transmission to the Request
+response = requests.post(URL, json=payload, headers=headers)
+
+if response.status_code == 200:
+    # Transmute JSON response into structured DataFrame
+    df_results = pd.DataFrame(response.json())
+    print(f"Discovery Complete. Found {len(df_results)} strategic points.")
+    display(df_results[['Title', 'top_entities', 'top_stats']])
+</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="doc-card">
+            <h2 class="section-title">2. How It Works</h2>
+            <div class="logic-grid">
+                
+                <div class="logic-item">
+                    <div class="logic-num">1</div>
+                    <div>
+                        <p><strong>Secure Connection:</strong> To start, the engine uses your <code>api_key</code> to verify your account. If you use the <code>friepedia</code> library, it automatically sets up the connection and security headers for you, so you don't have to write extra code to talk to our servers.</p>
+                    </div>
+                </div>
+
+                <div class="logic-item">
+                    <div class="logic-num">2</div>
+                    <div>
+                        <p><strong>Smart Search:</strong> When you send a query, the engine doesn't just look for matching words. It converts your request into a "vector" (a mathematical representation of meaning). This allows the system to find relevant information even if the exact words don't match, such as linking "banking" with "finance."</p>
+                    </div>
+                </div>
+
+                <div class="logic-item">
+                    <div class="logic-num">3</div>
+                    <div>
+                        <p><strong>Instant Data:</strong> The engine sends back a raw data package (JSON). We immediately convert this into a clean <b>Pandas DataFrame</b> table. This gives you a ready-to-use spreadsheet of information, including summaries, key statistics, and links, which you can use for your research or apps right away.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="doc-card" id="schema">
+            <h2 class="section-title">3. Response Schemas (15 Media Types)</h2>
+            <p>Our database contains 15 distinct forms of media. While the underlying NLP/Vector columns remain standardized across all types, the core metadata columns morph to fit the specific strategic format of the medium.</p>
+            
+            <div class="schema-explorer">
+                <div class="media-nav" id="mediaNav">
+                    </div>
+
+                <div id="schemaTablesContainer"></div>
+            </div>
+        </div>
+
+        <div class="doc-card" id="schema-json">
+            <h2 class="section-title">3.5. Response Schemas (15 Media Types, JSON)</h2>
+            <p>Explore the raw JSON response payload for each media type. This represents the array of objects returned by the API before DataFrame transmutation.</p>
+            
+            <div class="schema-explorer">
+                <div class="media-nav" id="jsonNav">
+                    </div>
+
+                <div id="jsonContentContainer"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>
+        // Toggle Code Implementations
+        function switchCode(type) {
+            document.querySelectorAll('.code-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.code-content').forEach(content => content.classList.remove('active'));
+            
+            if(type === 'lib') {
+                document.querySelectorAll('.code-tab-btn')[0].classList.add('active');
+                document.getElementById('code-lib').classList.add('active');
+            } else {
+                document.querySelectorAll('.code-tab-btn')[1].classList.add('active');
+                document.getElementById('code-rest').classList.add('active');
+            }
+        }
+
+        // Schema Data Definition (Added short examples for every column)
+        const nlpBase = [
+            { field: "top_entities", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Extracted named entities.", example: ["BCA", "OJK", "Jakarta"] },
+            { field: "top_stats", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Extracted numerical figures and statistics.", example: ["Mobile banking adoption grew by 45%"] },
+            { field: "most_positive_sentences", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Sentences scoring highest in sentiment analysis.", example: ["The seamless API integration improved satisfaction."] },
+            { field: "most_negative_sentences", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Sentences indicating risk, bottlenecks, or negative sentiment.", example: ["Cybersecurity remains a critical bottleneck."] },
+            { field: "top_transactions", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Sentences explicitly containing monetary value interactions.", example: ["Allocated IDR 1.8 Trillion for data center."] },
+            { field: "top_entities_sentences", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Sentences providing context for the primary entities.", example: ["BCA expanded its server capacity."] },
+            { field: "top_entities_verbs", type: "List [String]", desc: "<span class='badge-nlp'>NLP</span> Action verbs associated with the primary entities.", example: ["integrate", "secure", "automate"] },
+            { field: "top_paired_entities", type: "Dict", desc: "<span class='badge-nlp'>NLP</span> Network mapping of entities mentioned together.", example: {"BCA": ["OJK", "BI"]} },
+            { field: "top_paired_concepts", type: "Dict", desc: "<span class='badge-nlp'>NLP</span> Conceptual relationships derived from text.", example: {"API": ["Modular", "Secure"]} },
+            { field: "top_words_and_frequencies", type: "Dict", desc: "<span class='badge-nlp'>NLP</span> TF-IDF frequency analysis of core vocabulary.", example: {"Digital": 0.92, "Banking": 0.88} }
+        ];
+
+        const mediaSchemas = [
+            {
+                id: "docx", name: "1. DOCX Templates",
+                vectorTarget: "Key Topics",
+                cols: [
+                    { field: "Institution", type: "String", desc: "Issuing body.", example: "Corporate Inc" },
+                    { field: "Key Topics", type: "String", desc: "List of topics.", example: "[\"Legal\", \"Agreement\"]" },
+                    { field: "File_Name", type: "String", desc: "Original file name.", example: "Contract_v2.docx" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Title found during scraping.", example: "Standard Employment Contract" },
+                    { field: "Key Players", type: "String", desc: "Entities involved.", example: "HR Department" },
+                    { field: "File_Name_Refined_Title", type: "String", desc: "Cleaned file name.", example: "Contract v2" },
+                    { field: "Google_Scraped_Refined_Title", type: "String", desc: "Cleaned scraped title.", example: "Employment Contract" },
+                    { field: "Query_Anchor", type: "String", desc: "The search anchor used.", example: "Employment" },
+                    { field: "Source_Link", type: "String", desc: "URL to document.", example: "https://example.com/doc" }
+                ]
+            },
+            {
+                id: "pptx", name: "2. PPTX Templates",
+                vectorTarget: "Key Topics",
+                cols: [
+                    { field: "Institution", type: "String", desc: "Issuing body.", example: "Consulting Group" },
+                    { field: "Key Topics", type: "String", desc: "List of topics.", example: "[\"Strategy\", \"Q3\"]" },
+                    { field: "File_Name", type: "String", desc: "Original file name.", example: "Q3_Deck.pptx" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned file name.", example: "Q3 Deck" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Title found during scraping.", example: "Q3 Strategy Presentation" },
+                    { field: "Key Players", type: "String", desc: "Entities involved.", example: "Management Board" },
+                    { field: "Query_Anchor", type: "String", desc: "The search anchor used.", example: "Strategy" },
+                    { field: "Source_Link", type: "String", desc: "URL to document.", example: "https://example.com/ppt" },
+                    { field: "Google_Scraped_Refined", type: "String", desc: "Cleaned scraped title.", example: "Strategy Presentation" },
+                    { field: "First_Slide_Title", type: "String", desc: "Title from the first slide.", example: "Q3 Financial Review" }
+                ]
+            },
+            {
+                id: "xlsx", name: "3. XLSX Templates",
+                vectorTarget: "Sheet Names",
+                cols: [
+                    { field: "Institution", type: "String", desc: "Issuing body.", example: "Finance Dept" },
+                    { field: "File_Name", type: "String", desc: "Original file name.", example: "Budget_2026.xlsx" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned file name.", example: "Budget 2026" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Title found during scraping.", example: "Annual Budget Spreadsheet" },
+                    { field: "Key Players", type: "String", desc: "Entities involved.", example: "CFO" },
+                    { field: "Query_Anchor", type: "String", desc: "The search anchor used.", example: "Budget" },
+                    { field: "Source_Link", type: "String", desc: "URL to document.", example: "https://example.com/xls" },
+                    { field: "Google_Scraped_Refined", type: "String", desc: "Cleaned scraped title.", example: "Annual Budget" },
+                    { field: "Relevant Columns", type: "String", desc: "Extracted column names.", example: "[\"Revenue\", \"Expenses\"]" },
+                    { field: "Sheet Names", type: "String", desc: "Names of the sheets in the workbook.", example: "[\"Q1\", \"Q2\", \"Summary\"]" }
+                ]
+            },
+            {
+                id: "arxiv_summary", name: "4. ArXiv Journal Summary",
+                vectorTarget: "Abstract_Summary",
+                cols: [
+                    { field: "API_Title", type: "String", desc: "Paper Title.", example: "IndoBERT: Pre-training..." },
+                    { field: "PDF_Length", type: "Integer", desc: "Page count of the PDF.", example: 12 },
+                    { field: "Key_Topics", type: "String", desc: "ArXiv classification topics.", example: "[\"NLP\", \"Machine Learning\"]" },
+                    { field: "Universities", type: "String", desc: "Extracted affiliated universities.", example: "[\"ITB\", \"UI\"]" },
+                    { field: "Abstract_Summary", type: "String", desc: "The abstract of the paper.", example: "This paper presents a new model..." },
+                    { field: "Link", type: "String", desc: "ArXiv URL.", example: "https://arxiv.org/abs/..." }
+                ]
+            },
+            {
+                id: "arxiv_tables", name: "5. ArXiv Journal Tables",
+                vectorTarget: "Tables",
+                cols: [
+                    { field: "API_Title", type: "String", desc: "Paper Title.", example: "IndoBERT: Pre-training..." },
+                    { field: "PDF_Length", type: "Integer", desc: "Page count of the PDF.", example: 12 },
+                    { field: "Key_Topics", type: "String", desc: "ArXiv classification topics.", example: "[\"NLP\", \"Machine Learning\"]" },
+                    { field: "Universities", type: "String", desc: "Extracted affiliated universities.", example: "[\"ITB\", \"UI\"]" },
+                    { field: "Tables", type: "String", desc: "Extracted tables text or caption.", example: "Table 1: Performance metrics..." },
+                    { field: "Link", type: "String", desc: "ArXiv URL.", example: "https://arxiv.org/abs/..." }
+                ]
+            },
+            {
+                id: "arxiv_figures", name: "6. ArXiv Journals Figures",
+                vectorTarget: "Figures",
+                cols: [
+                    { field: "API_Title", type: "String", desc: "Paper Title.", example: "IndoBERT: Pre-training..." },
+                    { field: "PDF_Length", type: "Integer", desc: "Page count of the PDF.", example: 12 },
+                    { field: "Key_Topics", type: "String", desc: "ArXiv classification topics.", example: "[\"NLP\", \"Machine Learning\"]" },
+                    { field: "Universities", type: "String", desc: "Extracted affiliated universities.", example: "[\"ITB\", \"UI\"]" },
+                    { field: "Figures", type: "String", desc: "Extracted figures text or caption.", example: "Figure 2: Architecture diagram..." },
+                    { field: "Abstract_Summary", type: "String", desc: "The abstract of the paper.", example: "This paper presents a new model..." },
+                    { field: "Link", type: "String", desc: "ArXiv URL.", example: "https://arxiv.org/abs/..." }
+                ]
+            },
+            {
+                id: "pdf_summary", name: "7. PDF Report Summary",
+                vectorTarget: "Summary",
+                cols: [
+                    { field: "Title", type: "String", desc: "Document title.", example: "Annual Industry Report" },
+                    { field: "Summary", type: "String", desc: "Extracted summary.", example: "Overview of the fiscal year." },
+                    { field: "Institution", type: "String", desc: "Publishing body.", example: "Ministry of Finance" },
+                    { field: "Key Topics", type: "String", desc: "List of topics.", example: "[\"Economy\", \"Growth\"]" },
+                    { field: "File_Name", type: "String", desc: "Original filename.", example: "Report_2025.pdf" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned filename.", example: "Report 2025" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Scraped title.", example: "Finance Report" },
+                    { field: "Google_Scraped_Refine", type: "String", desc: "Cleaned scraped title.", example: "Finance Report" },
+                    { field: "Key Players", type: "String", desc: "Major entities mentioned.", example: "Bank Indonesia" },
+                    { field: "Market Sizing", type: "String", desc: "Market sizing data.", example: "IDR 500 Trillion" }
+                ]
+            },
+            {
+                id: "pdf_stats", name: "8. PDF Report Statistics",
+                vectorTarget: "Key Statistic",
+                cols: [
+                    { field: "Title", type: "String", desc: "Document title.", example: "Annual Industry Report" },
+                    { field: "Institution", type: "String", desc: "Publishing body.", example: "Ministry of Finance" },
+                    { field: "File_Name", type: "String", desc: "Original filename.", example: "Report_2025.pdf" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned filename.", example: "Report 2025" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Scraped title.", example: "Finance Report" },
+                    { field: "Google_Scraped_Refine", type: "String", desc: "Cleaned scraped title.", example: "Finance Report" },
+                    { field: "Key Statistic", type: "String", desc: "Isolated numerical data point.", example: "Growth reached 5.2%" }
+                ]
+            },
+            {
+                id: "pdf_tables", name: "9. PDF Report Tables",
+                vectorTarget: "Table",
+                cols: [
+                    { field: "Title", type: "String", desc: "Document title.", example: "Annual Industry Report" },
+                    { field: "Institution", type: "String", desc: "Publishing body.", example: "Ministry of Finance" },
+                    { field: "File_Name", type: "String", desc: "Original filename.", example: "Report_2025.pdf" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned filename.", example: "Report 2025" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Scraped title.", example: "Finance Report" },
+                    { field: "Google_Scraped_Refine", type: "String", desc: "Cleaned scraped title.", example: "Finance Report" },
+                    { field: "Table", type: "String", desc: "Table caption or content.", example: "Table 3: Revenue by sector." }
+                ]
+            },
+            {
+                id: "pdf_figures", name: "10. PDF Report Figures",
+                vectorTarget: "Figure",
+                cols: [
+                    { field: "Title", type: "String", desc: "Document title.", example: "Annual Industry Report" },
+                    { field: "Institution", type: "String", desc: "Publishing body.", example: "Ministry of Finance" },
+                    { field: "File_Name", type: "String", desc: "Original filename.", example: "Report_2025.pdf" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned filename.", example: "Report 2025" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Scraped title.", example: "Finance Report" },
+                    { field: "Google_Scraped_Refine", type: "String", desc: "Cleaned scraped title.", example: "Finance Report" },
+                    { field: "Figure", type: "String", desc: "Figure caption or description.", example: "Figure 1: Market share distribution." }
+                ]
+            },
+            {
+                id: "syllabus", name: "11. Course Syllabus",
+                vectorTarget: "Timeline",
+                cols: [
+                    { field: "Link", type: "String", desc: "URL to syllabus.", example: "https://university.edu/course" },
+                    { field: "Institution", type: "String", desc: "University offering the course.", example: "National University" },
+                    { field: "PDF Length", type: "Integer", desc: "Page count.", example: 4 },
+                    { field: "Key Topics", type: "String", desc: "Topics covered.", example: "[\"Algorithms\", \"Data Structures\"]" },
+                    { field: "File_Name", type: "String", desc: "Original filename.", example: "CS101_Syllabus.pdf" },
+                    { field: "File_Name_Refined", type: "String", desc: "Cleaned filename.", example: "CS101 Syllabus" },
+                    { field: "Google_Scraped_Title", type: "String", desc: "Scraped title.", example: "Syllabus CS101" },
+                    { field: "Google_Scraped_Refine", type: "String", desc: "Cleaned scraped title.", example: "Syllabus CS101" },
+                    { field: "Outlier Insights", type: "String", desc: "Unique elements in course.", example: "Includes a practical capstone project." },
+                    { field: "Timeline", type: "String", desc: "Course schedule overview.", example: "Week 1-3: Basics. Week 4-6: Advanced." }
+                ]
+            },
+            {
+                id: "slides", name: "12. PDF Slides",
+                vectorTarget: "Summary",
+                cols: [
+                    { field: "Institution", type: "String", desc: "Presenting body.", example: "Tech Innovators" },
+                    { field: "Title", type: "String", desc: "Deck Title.", example: "AI Trends 2026" },
+                    { field: "Summary", type: "String", desc: "Slide deck synthesis.", example: "Overview of recent AI advancements." },
+                    { field: "Pain Point Addressed", type: "String", desc: "Core organizational issue.", example: "Data bottlenecks" },
+                    { field: "Key Players", type: "String", desc: "Stakeholders involved.", example: "OpenAI, Google" },
+                    { field: "Topic", type: "String", desc: "Categorical topic.", example: "Artificial Intelligence" },
+                    { field: "Link", type: "String", desc: "Download link.", example: "https://example.com/slides" }
+                ]
+            },
+            {
+                id: "conference", name: "13. PDF Conferences",
+                vectorTarget: "Key Topics",
+                cols: [
+                    { field: "Google Scraped Title", type: "String", desc: "Raw Title.", example: "Tech Summit 2026 PDF" },
+                    { field: "Google Scraped Title Refined", type: "String", desc: "Cleaned Title.", example: "Tech Summit 2026" },
+                    { field: "Document Title", type: "String", desc: "PDF Metadata title.", example: "Summit Agenda" },
+                    { field: "Document Title Refined", type: "String", desc: "Cleaned metadata title.", example: "Summit Agenda" },
+                    { field: "Institution", type: "String", desc: "Organizing body.", example: "Tech Corp" },
+                    { field: "PDF Length", type: "Integer", desc: "Page count.", example: 10 },
+                    { field: "Key Topics", type: "String", desc: "Topics discussed.", example: "[\"Innovation\", \"Funding\"]" },
+                    { field: "Key Institutions", type: "String", desc: "Participating organizations.", example: "[\"Google\", \"Microsoft\"]" },
+                    { field: "Link", type: "String", desc: "Event URL.", example: "https://example.com/conf" }
+                ]
+            },
+            {
+                id: "github", name: "14. GitHub Repository Summary",
+                vectorTarget: "Summary",
+                cols: [
+                    { field: "Title", type: "String", desc: "Repository Name / Title.", example: "friepedia-engine" },
+                    { field: "Summary", type: "String", desc: "Functional purpose of the codebase.", example: "A robust data extraction tool." },
+                    { field: "Topics", type: "String", desc: "Repository tags.", example: "[\"python\", \"data-science\"]" },
+                    { field: "Language", type: "String", desc: "Primary language.", example: "Python" },
+                    { field: "First Update", type: "String", desc: "Creation or initial commit date.", example: "2024-01-10" },
+                    { field: "Last Update", type: "String", desc: "Most recent commit date.", example: "2026-05-01" },
+                    { field: "Stars", type: "Integer", desc: "GitHub Star count.", example: 150 },
+                    { field: "Forks", type: "Integer", desc: "GitHub Fork count.", example: 45 }
+                ]
+            },
+            {
+                id: "scholarship", name: "15. Scholarship Corner",
+                vectorTarget: "Benefits",
+                cols: [
+                    { field: "Title", type: "String", desc: "Scholarship or Grant Name.", example: "Global Leaders Scholarship" },
+                    { field: "Benefits", type: "String", desc: "Financial and networking offerings.", example: "Full tuition, living stipend" },
+                    { field: "Level", type: "String", desc: "Academic level (Master's, PhD).", example: "Graduate (Master's)" },
+                    { field: "Institution", type: "String", desc: "University or granting body.", example: "Oxford University" },
+                    { field: "Date", type: "String", desc: "Deadline or announcement date.", example: "2026-09-01" },
+                    { field: "Traction (Competitiveness)", type: "String", desc: "Arbitrage analysis of visibility.", example: "High Visibility (45%)" },
+                    { field: "Usual Application Window", type: "String", desc: "Temporal timeframe for prep.", example: "June - August" },
+                    { field: "Official Documentation", type: "String", desc: "Portal link.", example: "https://ox.ac.uk/..." },
+                    { field: "Documents Needed", type: "String", desc: "Prerequisites.", example: "Resume, Transcripts, Proposal" }
+                ]
+            }
+        ];
+
+        // Initialization Logic for Schema Builder & JSON Builder
+        const navContainer = document.getElementById('mediaNav');
+        const tablesContainer = document.getElementById('schemaTablesContainer');
+        
+        const jsonNavContainer = document.getElementById('jsonNav');
+        const jsonContentContainer = document.getElementById('jsonContentContainer');
+
+        mediaSchemas.forEach((schema, index) => {
+            // ==========================================
+            // Build Table Elements (Section 3)
+            // ==========================================
+            const btn = document.createElement('button');
+            btn.className = `media-btn ${index === 0 ? 'active' : ''}`;
+            btn.textContent = schema.name;
+            btn.onclick = () => switchSchema(schema.id);
+            navContainer.appendChild(btn);
+
+            const tableWrapper = document.createElement('div');
+            tableWrapper.className = `schema-table-container ${index === 0 ? 'active' : ''}`;
+            tableWrapper.id = `schema-${schema.id}`;
+
+            let tbodyHtml = '';
+            
+            // Format example helper
+            const renderExample = (ex) => {
+                const str = typeof ex === 'object' ? JSON.stringify(ex) : `"${ex}"`;
+                return `<span class="example-text"><i class="fa-solid fa-code"></i> Ex: ${str}</span>`;
+            };
+
+            // 1. Inject Standard Media Columns
+            schema.cols.forEach(col => {
+                tbodyHtml += `
+                    <tr>
+                        <td><code>${col.field}</code></td>
+                        <td>${col.type}</td>
+                        <td>${col.desc} ${renderExample(col.example)}</td>
+                    </tr>
+                `;
+            });
+
+            // 2. Inject the dynamic Vector Column
+            tbodyHtml += `
+                <tr>
+                    <td><code>vector_${schema.vectorTarget.replace(/ /g, "")}</code></td>
+                    <td>List [Float]</td>
+                    <td><span class="badge-vector">VECTOR</span> 384-dimensional semantic embedding of the ${schema.vectorTarget} field. <span class="example-text"><i class="fa-solid fa-code"></i> Ex: [0.012, -0.045, 0.128, ...]</span></td>
+                </tr>
+            `;
+
+            // 3. Inject Standardized NLP Columns
+            nlpBase.forEach(col => {
+                tbodyHtml += `
+                    <tr>
+                        <td><code>${col.field}</code></td>
+                        <td>${col.type}</td>
+                        <td>${col.desc} ${renderExample(col.example)}</td>
+                    </tr>
+                `;
+            });
+
+            tableWrapper.innerHTML = `
+                <div style="padding: 15px; background: #e8f4f5; border-left: 4px solid var(--frie-teal); margin-bottom: 15px; border-radius: 4px;">
+                    <strong>API Endpoint:</strong> <code>/v1/${schema.id.replace('pdf', 'reports').replace('stats', 'statistics')}/search</code>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Field / Column Name</th>
+                            <th style="width: 20%;">Data Type</th>
+                            <th style="width: 55%;">Description & Logic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tbodyHtml}
+                    </tbody>
+                </table>
+            `;
+            tablesContainer.appendChild(tableWrapper);
+
+            // ==========================================
+            // Build JSON Elements (Section 3.5)
+            // ==========================================
+            const jsonBtn = document.createElement('button');
+            jsonBtn.className = `media-btn json-btn ${index === 0 ? 'active' : ''}`;
+            jsonBtn.textContent = schema.name;
+            jsonBtn.onclick = () => switchJsonSchema(schema.id);
+            jsonNavContainer.appendChild(jsonBtn);
+
+            const jsonWrapper = document.createElement('div');
+            jsonWrapper.className = `schema-table-container ${index === 0 ? 'active' : ''}`;
+            jsonWrapper.id = `json-${schema.id}`;
+
+            // Construct mock JSON object
+            let jsonObj = {};
+            schema.cols.forEach(col => jsonObj[col.field] = col.example);
+            
+            // Add vector mock
+            jsonObj[`vector_${schema.vectorTarget.replace(/ /g, "")}`] = [0.012, -0.045, 0.128, "..."];
+            
+            // Add NLP mocks
+            nlpBase.forEach(col => jsonObj[col.field] = col.example);
+
+            // Stringify and clean up the ellipsis in array
+            const jsonString = JSON.stringify([jsonObj], null, 4).replace('"..."', '...');
+
+            jsonWrapper.innerHTML = `
+                <div style="background: #0d1117; border-radius: 8px; border: 1px solid var(--frie-border); overflow-x: auto; padding: 20px;">
+                    <pre><code class="language-json">${jsonString}</code></pre>
+                </div>
+            `;
+            jsonContentContainer.appendChild(jsonWrapper);
+        });
+
+        // Tab Switchers
+        function switchSchema(targetId) {
+            document.querySelectorAll('#mediaNav .media-btn').forEach(btn => btn.classList.remove('active'));
+            const btnIndex = mediaSchemas.findIndex(s => s.id === targetId);
+            document.querySelectorAll('#mediaNav .media-btn')[btnIndex].classList.add('active');
+
+            document.querySelectorAll('#schemaTablesContainer .schema-table-container').forEach(table => table.classList.remove('active'));
+            document.getElementById(`schema-${targetId}`).classList.add('active');
+        }
+
+        function switchJsonSchema(targetId) {
+            document.querySelectorAll('#jsonNav .json-btn').forEach(btn => btn.classList.remove('active'));
+            const btnIndex = mediaSchemas.findIndex(s => s.id === targetId);
+            document.querySelectorAll('#jsonNav .json-btn')[btnIndex].classList.add('active');
+
+            document.querySelectorAll('#jsonContentContainer .schema-table-container').forEach(block => block.classList.remove('active'));
+            document.getElementById(`json-${targetId}`).classList.add('active');
+        }
+
+        // Apply syntax highlighting after all dynamic content is built
+        hljs.highlightAll();
+    </script>
+</body>
+</html>

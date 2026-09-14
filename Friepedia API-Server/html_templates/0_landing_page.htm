@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friepedia | Data Alchemy & RAG Intelligence</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* =========================================================
+           1. CORE VARIABLES & SETUP (The Teal Alchemist Palette)
+           ========================================================= */
+        :root {
+            --frie-teal: #088395;
+            --frie-teal-dark: #066b7a;
+            --frie-gray: #4e4b4c;
+            --frie-light-gray: #a6a1a3;
+            --frie-bg: #fafafa;
+            --frie-white: #ffffff;
+            --frie-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --frie-shadow-hover: 0 15px 40px rgba(8, 131, 149, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--frie-bg);
+            color: var(--frie-gray);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Typography */
+        h1, h2, h3 { color: var(--frie-teal); font-weight: 800; margin-top: 0; }
+        .text-accent { color: var(--frie-teal); }
+        .text-bold { font-weight: 700; }
+
+        /* =========================================================
+           ROW 1: NAVBAR
+           ========================================================= */
+        nav {
+            background-color: var(--frie-white);
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+        .nav-logo {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: var(--frie-teal);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        .nav-links a {
+            color: var(--frie-gray);
+            text-decoration: none;
+            margin-left: 30px;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        .nav-links a:hover { color: var(--frie-teal); }
+
+        /* =========================================================
+            ROW 2: PROBLEM & SOLUTION (40/60 Split)
+           ========================================================= */
+        .grid-2 {
+            display: grid;
+            /* 40% for Problem, 60% for Solution */
+            grid-template-columns: 0.3fr 0.7fr; 
+            gap: 30px;
+            margin: 60px 0;
+            align-items: stretch; /* Ensures both cards are the same height */
+        }
+
+        .info-card {
+            background: var(--frie-white);
+            border: 2px solid var(--frie-light-gray);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: var(--frie-shadow);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+
+        }
+
+        /* Problem Card specific - Minimal & Warning-based */
+        .info-card.problem {
+            border-left: 5px solid var(--frie-light-gray);
+        }
+
+        /* Solution Card specific - Teal Alchemist Mode */
+        .info-card.solution {
+            background: var(--frie-teal);
+            color: var(--frie-white);
+            border: 1px solid var(--frie-teal);
+        }
+
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--frie-shadow-hover);
+        }
+
+        .info-card.problem:hover {
+            border-color: var(--frie-teal);
+        }
+
+        /* Solution hover intensity */
+        .info-card.solution:hover {
+            background: var(--frie-teal-dark);
+            box-shadow: 0 20px 40px rgba(8, 131, 149, 0.25);
+        }
+
+        .info-card i {
+            font-size: 2.5em;
+            color: var(--frie-teal);
+            margin-bottom: 15px;
+        }
+
+        /* Adjust icon and header color for the Teal card */
+        .info-card.solution i, 
+        .info-card.solution h2 {
+            color: var(--frie-white);
+        }
+
+        .info-card.solution p {
+            opacity: 0.95;
+            line-height: 1.8; /* Slightly more space for the larger solution text */
+        }
+
+        /* =========================================================
+           ROW 3: INTERACTIVE FEATURES TABBED COMPONENT
+           ========================================================= */
+        .features-container {
+            background: var(--frie-white);
+            border-radius: 15px;
+            box-shadow: var(--frie-shadow);
+            border: 2px solid #e0e0e0;
+            overflow: hidden;
+            margin-bottom: 60px;
+        }
+
+        .features-nav {
+            display: flex;
+            background: #f1f3f4;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            background: transparent;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--frie-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover { background: #e8eaed; color: var(--frie-teal); }
+
+        .tab-btn.active {
+            background: var(--frie-white);
+            color: var(--frie-teal);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 3px;
+            background: var(--frie-teal);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* IPYNB Mock UI (Tab 1) - Redesigned for Vertical Breathing Room */
+        .ipynb-mock { 
+            background: #f8f9fa; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+            font-family: 'Consolas', monospace; 
+        }
+
+        .ipynb-input { 
+            padding: 15px 20px; 
+            border-bottom: 1px solid #e0e0e0; 
+            display: flex; 
+            align-items: center; 
+            background: #f8f9fa;
+        }
+
+        .in-prompt { color: #303f9f; font-weight: bold; margin-right: 15px; }
+
+        .ipynb-output { 
+            padding: 45px 25px; /* Critical fix: Added high vertical padding */
+            background: #fafafa; 
+        }
+        
+        /* UI Replica Card - 1:1 match with .py Design Logic */
+        .mock-frie-card {
+            border: 1px solid #d1d1d1;
+            border-radius: 12px; 
+            padding: 25px 20px; /* Increased internal padding */
+            text-align: left; 
+            font-family: 'Segoe UI', sans-serif;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 420px; /* Critical fix: Prevents squishing */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .mock-frie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--frie-shadow-hover);
+            border-color: var(--frie-teal);
+        }
+
+        .mock-title { 
+            color: var(--frie-teal); 
+            font-weight: 800; 
+            font-size: 1.15em; 
+            line-height: 1.3;
+        }
+
+        .mock-pill { 
+            border: 1px solid var(--frie-teal); 
+            color: var(--frie-teal); 
+            border-radius: 20px; 
+            padding: 3px 12px; 
+            font-size: 0.75em; 
+            font-weight: 700; 
+            display: inline-block; 
+        }
+
+        .mock-box { 
+            background: var(--frie-teal); 
+            color: white; 
+            border-radius: 10px; 
+            padding: 15px; 
+            font-weight: 600; 
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+
+        /* Backend API (Tab 2) - Spacious Design */
+        .code-block {
+            background: #0d1117; 
+            color: #abb2bf;
+            padding: 35px; 
+            border-radius: 12px;
+            overflow-x: auto; 
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.7;
+            font-size: 1.05em;
+            border: 1px solid #30363d;
+        }
+
+        /* Bulk Table (Tab 3) - Horizontal Spreadsheet Feel */
+        .data-table-container { 
+            overflow-x: auto; 
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 0.9em; 
+            background: white;
+        }
+
+        th { 
+            background: var(--frie-teal); 
+            color: white; 
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            white-space: nowrap; 
+        }
+
+        td { 
+            padding: 15px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+            color: var(--frie-gray);
+        }
+
+        tr:hover { background: #f9f9f9; }
+
+        .vector-badge { 
+            background: #f1f3f4; 
+            color: #666;
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.8em; 
+            font-family: 'Consolas', monospace;
+            border: 1px solid #ddd;
+        }
+
+        /* =========================================================
+           ROW 4: FRIEDAY ENGINE
+           ========================================================= */
+        .frieday-section {
+            text-align: center;
+            margin: 80px 0;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--frie-white) 0%, #e1f5f7 100%);
+            border-radius: 20px;
+            box-shadow: inset 0 0 20px rgba(8, 131, 149, 0.05);
+            border: 1px solid #cceced;
+        }
+        .big-stat {
+            font-size: 2.2em;
+            color: var(--frie-teal-dark);
+            font-weight: 900;
+            margin: 20px 0;
+        }
+        .media-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 40px 0;
+        }
+        .media-pill {
+            background: var(--frie-white);
+            border: 2px solid var(--frie-teal);
+            color: var(--frie-teal);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        .media-pill:hover {
+            background: var(--frie-teal);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(8,131,149,0.3);
+        }
+        .sector-badge-container {
+            background: white; border-radius: 10px; padding: 20px;
+            border: 1px dashed var(--frie-teal);
+            max-width: 800px; margin: 0 auto;
+        }
+
+        .sector-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px; /* Tighter gap for the 69 sectors */
+            margin-top: 25px;
+            max-height: 300px; /* Optional: adds scroll if they take too much space */
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .sector-pill {
+            background: #f1f8f9;
+            border: 1px solid var(--frie-light-gray);
+            color: var(--frie-gray);
+            padding: 5px 12px;
+            border-radius: 15px; /* More "industrial/data" look than rounded pills */
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            cursor: default;
+        }
+
+        .sector-pill:hover {
+            border-color: var(--frie-teal);
+            color: var(--frie-teal);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar for the Sector Cloud */
+        .sector-grid::-webkit-scrollbar { width: 5px; }
+        .sector-grid::-webkit-scrollbar-thumb { background: var(--frie-light-gray); border-radius: 10px; }
+
+        /* =========================================================
+            ROW 5: FAQ - Centered and Spaced
+           ========================================================= */
+        .faq-section { 
+            margin: 80px auto; /* Centered with vertical breathing room */
+            width: 90vw;  /* Prevents it from stretching to screen edges */
+            padding: 0 40px;   /* Internal horizontal buffer for mobile/smaller screens */
+        }
+
+        .faq-card {
+            background: var(--frie-white);
+            border-radius: 15px;
+            box-shadow: var(--frie-shadow);
+            border: 1px solid #e0e0e0;
+            padding: 40px; /* Increased internal padding for a premium feel */
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar for FAQ */
+        .faq-card::-webkit-scrollbar { width: 8px; }
+        .faq-card::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .faq-card::-webkit-scrollbar-thumb { background: var(--frie-light-gray); border-radius: 10px; }
+        .faq-card::-webkit-scrollbar-thumb:hover { background: var(--frie-teal); }
+
+        details {
+            border-bottom: 1px solid #eee;
+            padding: 20px 0; /* More vertical space between questions */
+        }
+
+        summary {
+            font-weight: 700;
+            color: var(--frie-teal-dark);
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.15em;
+            transition: color 0.2s ease;
+        }
+
+        summary:hover {
+            color: var(--frie-teal);
+        }
+
+        summary::-webkit-details-marker { display: none; }
+        
+        summary::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--frie-light-gray);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.8em;
+        }
+
+        details[open] summary::after { 
+            transform: rotate(180deg); 
+            color: var(--frie-teal); 
+        }
+
+        .faq-answer {
+            padding: 20px 0 10px 0;
+            color: var(--frie-gray);
+            line-height: 1.8;
+            font-size: 1.05em;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================================
+           ROW 6: CTA
+           ========================================================= */
+        .cta-section {
+            text-align: center;
+            margin: 80px 0 100px 0;
+        }
+        .pip-install {
+            background: white;
+            color: #1e1e1e;
+            font-family: monospace;
+            padding: 20px 40px;
+            border-radius: 8px;
+            display: inline-block;
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .btn-colab {
+            background: var(--frie-gray);
+            color: white;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(8,131,149,0.3);
+        }
+        .btn-colab:hover {
+            background: var(--frie-teal-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(8,131,149,0.4);
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ROW 1: NAVBAR -->
+    <nav>
+        <div class="container nav-inner">
+            <a href="#" class="nav-logo">friepedia</a>
+            <div class="nav-links">
+                <a href="#api-pricing">API Pricing</a>
+                <a href="#documentation">Documentation</a>
+                <a href="#features">The Engine</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- ROW 2: PROBLEM & SOLUTION -->
+        <div class="grid-2">
+            <div class="info-card problem">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <h2>The Problem</h2>
+                <p>We are facing an unprecedented overload of information, where noise drowns out strategic value. General AI tools hallucinate, destroying trust, while human consultants are too slow and expensive for pre-seed startup innovation. Decision-makers lack credible, verified information to establish competitive leverage.</p>
+            </div>
+            <div class="info-card solution" style="border-top: 5px solid var(--frie-teal);">
+                <i class="fa-solid fa-flask"></i>
+                <h2>The Solution</h2>
+                <p>Friepedia transforms overwhelming public data into curated actionable strategic leverage cards. By bridging media logic and industrial needs, we provide the AI-RAG-ready Textual data fuel essential for high-leverage decision-making.</p>
+                <div class="cta-section">
+                    <div class="pip-install">
+                        pip install friepedia
+                    </div>
+                    <br>
+                    <a href="https://colab.research.google.com/?authuser=0#create=true" target="_blank" class="btn-colab">
+                        <i class="fa-brands fa-google"></i> Try it now in Google Colab
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 3: INTERACTIVE FEATURES -->
+        <div class="features-container" id="features">
+            <div class="features-nav">
+                <button class="tab-btn active" onclick="openTab('tab-ui')">
+                    <i class="fa-solid fa-laptop-code"></i> User Interactive API
+                </button>
+                <button class="tab-btn" onclick="openTab('tab-backend')">
+                    <i class="fa-solid fa-server"></i> Backend API
+                </button>
+                <button class="tab-btn" onclick="openTab('tab-bulk')">
+                    <i class="fa-solid fa-database"></i> Bulk Data Extraction
+                </button>
+            </div>
+
+            <div id="tab-ui" class="tab-content active">
+                <p class="text-bold">
+                    <h2 style="color: var(--frie-teal); border-left: 5px solid var(--frie-teal); padding-left: 15px;">Interactive IPYNB UI in 3 lines</h2>
+    <span style="color: var(--frie-teal); font-weight: 800;">With 3 lines of code</span>, Transmute search queries into high-fidelity strategic cards directly within your research environment.</p>
+                <div class="ipynb-mock" style="border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; background: #ffffff;">
+                    
+                    <div class="ipynb-input" style="background: #f8f9fa; border-bottom: 1px solid #e0e0e0; padding: 15px 20px; display: flex; align-items: flex-start;">
+                        <span class="in-prompt" style="color: #303f9f; font-family: 'Consolas', monospace; min-width: 45px;">In [1]:</span>
+                        <div style="font-family: 'Consolas', monospace; color: #333; line-height: 1.6;">
+                            <div>pip install friepedia</div>
+                            <div><span style="color: #abb2bf;">from</span> <span style="color: #e06c75;">friepedia</span> <span style="color: #abb2bf;">import</span> <span style="color: #e06c75;">friepedia_banking_webinars</span> <span style="color: #abb2bf;">#example: banking webinars</span> </div> 
+                            <div>friepedia_banking_webinars.run(api_key=<span style="color: #a5d6ff;">"FRIE-XXXXXXXX"</span>)</div>
+                        </div>
+                    </div>
+                    <div class="ipynb-output" style="padding: 45px 25px; background: #fafafa;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                            
+                            <div class="mock-frie-card" style="background: white; border: 1px solid #d1d1d1; border-radius: 12px; padding: 25px 20px; display: flex; flex-direction: column; gap: 10px; min-height: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                                <div class="mock-title" style="color: var(--frie-teal); font-weight: 800; font-size: 1.15em; line-height: 1.3;">Accelerating Digital Banking Transformation in Indonesia</div>
+                                <div style="color: var(--frie-gray); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Bank Central Asia (BCA)</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                    <span class="mock-pill" style="border: 1px solid var(--frie-teal); color: var(--frie-teal); border-radius: 20px; padding: 3px 12px; font-size: 0.75em; font-weight: 700;">Budi Sadikin</span>
+                                    <span class="mock-pill" style="border: 1px solid var(--frie-teal); color: var(--frie-teal); border-radius: 20px; padding: 3px 12px; font-size: 0.75em; font-weight: 700;">Tigor Siahaan</span>
+                                </div>
+                                <div class="mock-box" style="background: var(--frie-teal); color: white; border-radius: 10px; padding: 15px; font-size: 0.9em; font-weight: 600; line-height: 1.4; margin: 10px 0;">
+                                    45% increase in mobile banking users; IDR 5.2 Trillion in digital transactions.
+                                </div>
+                                <p style="font-size: 0.8em; color: #555; margin: 5px 0; line-height: 1.6;">This webinar explores the acceleration of digital banking in Indonesia. Discussion focuses on API integration and security protocols. Present implications show a shift toward cashless ecosystems. Future trends suggest AI-driven credit scoring will dominate 2026.</p>
+                                
+                                <div style="display: flex; gap: 10px; margin-top: auto; padding-bottom: 10px;">
+                                    <div style="flex: 1; text-align: center; background: var(--frie-teal); color: white; padding: 8px; border-radius: 6px; font-size: 0.75em; font-weight: 700; cursor: default;">Save to Inventory</div>
+                                    <div style="flex: 1; text-align: center; border: 1px solid var(--frie-teal); color: var(--frie-teal); padding: 8px; border-radius: 6px; font-size: 0.75em; font-weight: 700; cursor: default;">Visit Link</div>
+                                </div>
+
+                                <details style="margin-top: 5px; border-top: 1px solid #eee; padding-top: 15px;">
+                                    <summary style="font-size: 0.75em; font-weight: 700; color: var(--frie-teal); cursor: pointer; list-style: none;">[ + ] NLP Intelligence Pipeline</summary>
+                                    <div style="font-size: 0.7em; background: #f1f3f4; padding: 12px; border-radius: 6px; margin-top: 5px; color: #444; font-family: 'Consolas', monospace;">
+                                        <strong>top_entities:</strong> ["BCA", "OJK", "Jakarta", "BI"]<br>
+                                        <strong>top_stats:</strong> ["Mobile banking adoption grew by 45% among millennial users in urban areas."] <br>
+                                        <strong>most_positive_sentences:</strong> ["The seamless API integration has improved customer satisfaction by 30%."]
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div class="mock-frie-card" style="background: white; border: 1px solid #d1d1d1; border-radius: 12px; padding: 25px 20px; display: flex; flex-direction: column; gap: 10px; min-height: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                                <div class="mock-title" style="color: var(--frie-teal); font-weight: 800; font-size: 1.15em; line-height: 1.3;">Securing the Future: Cybersecurity Architecture for IKN</div>
+                                <div style="color: var(--frie-gray); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">BSSN</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                    <span class="mock-pill" style="border: 1px solid var(--frie-teal); color: var(--frie-teal); border-radius: 20px; padding: 3px 12px; font-size: 0.75em; font-weight: 700;">Budi Arie Setiadi</span>
+                                    <span class="mock-pill" style="border: 1px solid var(--frie-teal); color: var(--frie-teal); border-radius: 20px; padding: 3px 12px; font-size: 0.75em; font-weight: 700;">Hinsa Siburian</span>
+                                </div>
+                                <div class="mock-box" style="background: var(--frie-teal); color: white; border-radius: 10px; padding: 15px; font-size: 0.9em; font-weight: 600; line-height: 1.4; margin: 10px 0;">
+                                    IDR 1.8 Trillion budget for IKN cyber-defense; 0% critical breaches in 2025 testing.
+                                </div>
+                                <p style="font-size: 0.8em; color: #555; margin: 5px 0; line-height: 1.6;">Focus on national data sovereignty and zero-trust architecture implementation. The project involves securing data centers across the new capital city IKN. Implications include robust defense against international cyber-espionage.</p>
+                                
+                                <div style="display: flex; gap: 10px; margin-top: auto; padding-bottom: 10px;">
+                                    <div style="flex: 1; text-align: center; background: var(--frie-teal); color: white; padding: 8px; border-radius: 6px; font-size: 0.75em; font-weight: 700; cursor: default;">Save to Inventory</div>
+                                    <div style="flex: 1; text-align: center; border: 1px solid var(--frie-teal); color: var(--frie-teal); padding: 8px; border-radius: 6px; font-size: 0.75em; font-weight: 700; cursor: default;">Visit Link</div>
+                                </div>
+
+                                <details style="margin-top: 5px; border-top: 1px solid #eee; padding-top: 15px;">
+                                    <summary style="font-size: 0.75em; font-weight: 700; color: var(--frie-teal); cursor: pointer; list-style: none;">[ + ] NLP Intelligence Pipeline</summary>
+                                    <div style="font-size: 0.7em; background: #f1f3f4; padding: 12px; border-radius: 6px; margin-top: 5px; color: #444; font-family: 'Consolas', monospace;">
+                                        <strong>top_entities:</strong> ["BSSN", "IKN", "Kominfo"]<br>
+                                        <strong>top_stats:</strong> ["Security budget IDR 1.8 Trillion."] <br>
+                                        <strong>most_positive_sentences:</strong> ["Strategic roadmap ensures zero-trust architecture implementation."]
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div class="mock-frie-card" style="background: white; border: 1px solid #d1d1d1; border-radius: 12px; padding: 25px 20px; display: flex; flex-direction: column; gap: 10px; min-height: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                                <div class="mock-title" style="color: var(--frie-teal); font-weight: 800; font-size: 1.15em; line-height: 1.3;">Empowering MSMEs through Fintech and Digital Credit</div>
+                                <div style="color: var(--frie-gray); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">OJK</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                                    <span class="mock-pill" style="border: 1px solid var(--frie-teal); color: var(--frie-teal); border-radius: 20px; padding: 3px 12px; font-size: 0.75em; font-weight: 700;">Mahendra Siregar</span>
+                                </div>
+                                <div class="mock-box" style="background: var(--frie-teal); color: white; border-radius: 10px; padding: 15px; font-size: 0.9em; font-weight: 600; line-height: 1.4; margin: 10px 0;">
+                                    30M new digital borrowers; IDR 12.5 Trillion in digital credit distributed.
+                                </div>
+                                <p style="font-size: 0.8em; color: #555; margin: 5px 0; line-height: 1.6;">Discussion on financial inclusion and decentralized credit scoring platforms for rural entrepreneurs. By leveraging alternative data, fintech platforms bridge the credit gap for unbanked populations in 2025.</p>
+                                
+                                <div style="display: flex; gap: 10px; margin-top: auto; padding-bottom: 10px;">
+                                    <div style="flex: 1; text-align: center; background: var(--frie-teal); color: white; padding: 8px; border-radius: 6px; font-size: 0.75em; font-weight: 700; cursor: default;">Save to Inventory</div>
+                                    <div style="flex: 1; text-align: center; border: 1px solid var(--frie-teal); color: var(--frie-teal); padding: 8px; border-radius: 6px; font-size: 0.75em; font-weight: 700; cursor: default;">Visit Link</div>
+                                </div>
+
+                                <details style="margin-top: 5px; border-top: 1px solid #eee; padding-top: 15px;">
+                                    <summary style="font-size: 0.75em; font-weight: 700; color: var(--frie-teal); cursor: pointer; list-style: none;">[ + ] NLP Intelligence Pipeline</summary>
+                                    <div style="font-size: 0.7em; background: #f1f3f4; padding: 12px; border-radius: 6px; margin-top: 5px; color: #444; font-family: 'Consolas', monospace;">
+                                        <strong>top_entities:</strong> ["OJK", "MSME", "Fintech"]<br>
+                                        <strong>top_stats:</strong> ["30M new digital borrowers."] <br>
+                                        <strong>most_positive_sentences:</strong> ["Fintech platforms bridge the credit gap for unbanked populations."]
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Tab 2: Backend API -->
+            <div id="tab-backend" class="tab-content" style="padding: 20px;">
+                <div style="margin-bottom: 30px;">
+                    <h2 style="color: var(--frie-teal); border-left: 5px solid var(--frie-teal); padding-left: 15px;">Production API Integration</h2>
+                    <p style="font-size: 1.1em; color: var(--frie-gray); margin-top: 15px;">
+                        Directly query the Friepedia engine using our Python library. This implementation automates the extraction of 18 proprietary NLP data points, including semantic embeddings and entity relationship maps.
+                    </p>
+                </div>
+
+                <div style="background: var(--frie-white); border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden;">
+                    <div style="background: #f1f3f4; padding: 10px 20px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center;">
+                        <div style="display: flex; gap: 6px; margin-right: 15px;">
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></div>
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></div>
+                            <div style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></div>
+                        </div>
+                        <span style="font-family: monospace; font-size: 0.9em; color: #666;">friepedia_integration.py</span>
+                    </div>
+                    
+                    <pre style="margin: 0; padding: 30px; background: #0d1117; font-size: 1.05em; line-height: 1.7; overflow-x: auto;"><code class="language-python" style="font-family: 'Consolas', 'Monaco', monospace;">
+<span style="color: #abb2bf;">import</span> <span style="color: #e06c75;">pandas</span> <span style="color: #abb2bf;">as</span> <span style="color: #e06c75;">pd</span>
+<span style="color: #abb2bf;">from</span> <span style="color: #e06c75;">friepedia</span> <span style="color: #abb2bf;">import</span> <span style="color: #e06c75;">friepedia_healthcare_eq_webinars</span>
+
+<span style="color: #8b949e;"># 1. Initialize the Engine</span>
+engine = friepedia_healthcare_eq_webinars(api_key=<span style="color: #a5d6ff;">"FRIE-XXXXXXXX"</span>)
+
+<span style="color: #8b949e;"># 2. Execute Semantic Search</span>
+<span style="color: #8b949e;"># Returns a discovery-optimized DataFrame across 18 NLP data points</span>
+df = engine.search(
+    query=<span style="color: #a5d6ff;">"Digital Banking Transformation"</span>, 
+    top_k=<span style="color: #79c0ff;">5</span>
+)
+
+<span style="color: #8b949e;"># 3. Analyze Extracted Intelligence</span>
+<span style="color: #abb2bf;">if</span> <span style="color: #abb2bf;">not</span> df.empty:
+    <span style="color: #8b949e;"># Focus on high-leverage columns (Entities, Stats, and Figures)</span>
+    leverage_view = df[[<span style="color: #a5d6ff;">'Title'</span>, <span style="color: #a5d6ff;">'top_entities'</span>, <span style="color: #a5d6ff;">'top_stats'</span>]]
+    <span style="color: #d2a8ff;">display</span>(leverage_view)
+                    </code></pre>
+                </div>
+
+                <div style="margin-top: 30px; display: grid; gap: 15px;">
+                    <div style="display: flex; align-items: flex-start;">
+                        <div style="background: var(--frie-teal); color: white; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; font-size: 0.9em;">1</div>
+                        <p style="margin: 0;"><b>Engine Initialization:</b> Local initialization connects the "Courier" to the remote backend, authenticating your credentials for high-speed data access.</p>
+                    </div>
+                    <div style="display: flex; align-items: flex-start;">
+                        <div style="background: var(--frie-teal); color: white; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; font-size: 0.9em;">2</div>
+                        <p style="margin: 0;"><b>Discovery Pipeline:</b> The <code>search</code> method handles vectorization and hybrid-keyword scoring internally, returning 100% credible, verified data points.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Bulk Data Extraction -->
+            <div id="tab-bulk" class="tab-content">
+                <h2 style="color: var(--frie-teal); border-left: 5px solid var(--frie-teal); padding-left: 15px;">Extract Bulk Curated Data</h2>
+                <h4 class="text-bold">Extract fully structured, analytics-ready datasets complete with multi-dimensional embeddings and deep NLP metadata.</h4>
+                <div class="data-table-container" style="overflow-x: auto; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <table style="min-width: 2500px;"> <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Institution</th>
+                                <th>Key Speakers</th>
+                                <th>Important Figures/Statistics</th>
+                                <th>Summary</th>
+                                <th>Link</th>
+                                <th>most_negative_sentences</th>
+                                <th>most_positive_sentences</th>
+                                <th>top_entities</th>
+                                <th>top_entities_sentences</th>
+                                <th>top_entities_verbs</th>
+                                <th>top_paired_concepts</th>
+                                <th>top_paired_entities</th>
+                                <th>top_stats</th>
+                                <th>top_transactions</th>
+                                <th>top_words_and_frequencies</th>
+                                <th>vector_Summary</th>
+                                <th>test_query_source</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-bold">Accelerating Digital Banking Transformation</td>
+                                <td>Bank Central Asia (BCA)</td>
+                                <td>Budi Sadikin, Tigor Siahaan</td>
+                                <td>45% increase in mobile banking users; IDR 5.2T transactions.</td>
+                                <td>This webinar explores the acceleration of digital banking...</td>
+                                <td><a href="#" style="color:var(--frie-teal);">youtube.com/watch?v=bca...</a></td>
+                                <td>["Cybersecurity threats remain a bottleneck..."]</td>
+                                <td>["The seamless API integration improved satisfaction..."]</td>
+                                <td>["BCA", "OJK", "BI"]</td>
+                                <td>["Server capacity expanded to 10M transactions..."]</td>
+                                <td>["integrate", "secure", "automate"]</td>
+                                <td>{"API": ["Modular", "Secure"]}</td>
+                                <td>{"BCA": ["OJK", "Gojek"]}</td>
+                                <td>["Mobile adoption grew 45%..."]</td>
+                                <td>["Investment reached IDR 1.2 Trillion..."]</td>
+                                <td>{"Digital": 0.92, "Banking": 0.85}</td>
+                                <td><span class="vector-badge">[0.012, -0.045, 0.128, ...]</span></td>
+                                <td>Digital Banking</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">Securing the Future: Cybersecurity Architecture</td>
+                                <td>BSSN</td>
+                                <td>Budi Arie Setiadi, Hinsa Siburian</td>
+                                <td>IDR 1.8 Trillion budget; 0% critical breaches in testing.</td>
+                                <td>Focus on IKN cyber-defense and national data sovereignty...</td>
+                                <td><a href="#" style="color:var(--frie-teal);">youtube.com/watch?v=ikn...</a></td>
+                                <td>["Current legacy systems are vulnerable..."]</td>
+                                <td>["Strategic roadmap ensures zero-trust architecture..."]</td>
+                                <td>["BSSN", "IKN", "Kominfo"]</td>
+                                <td>["Encryption protocols updated to AES-256..."]</td>
+                                <td>["defend", "encrypt", "monitor"]</td>
+                                <td>{"Defense": ["Zero-Trust", "National"]}</td>
+                                <td>{"BSSN": ["Cyber", "Intelligence"]}</td>
+                                <td>["0% breaches recorded in simulation..."]</td>
+                                <td>["Security budget: IDR 1.8 Trillion..."]</td>
+                                <td>{"Security": 0.95, "Cyber": 0.88}</td>
+                                <td><span class="vector-badge">[0.104, 0.088, -0.012, ...]</span></td>
+                                <td>Cybersecurity</td>
+                            </tr>
+                            <tr>
+                                <td class="text-bold">Empowering MSMEs through Fintech</td>
+                                <td>OJK</td>
+                                <td>Mahendra Siregar</td>
+                                <td>30M new borrowers; IDR 12.5T credit distributed.</td>
+                                <td>Discussion on financial inclusion and digital credit scoring...</td>
+                                <td><a href="#" style="color:var(--frie-teal);">youtube.com/watch?v=ojk...</a></td>
+                                <td>["High interest rates still discourage borrowing..."]</td>
+                                <td>["Fintech platforms bridge the credit gap..."]</td>
+                                <td>["OJK", "MSME", "Fintech"]</td>
+                                <td>["Data-driven scoring lowered NPL by 15%..."]</td>
+                                <td>["empower", "lend", "include"]</td>
+                                <td>{"Fintech": ["Inclusive", "Agile"]}</td>
+                                <td>{"OJK": ["MSME", "Bank"]}</td>
+                                <td>["30M new digital borrowers..."]</td>
+                                <td>["Credit distribution: IDR 12.5T..."]</td>
+                                <td>{"Fintech": 0.90, "Inclusion": 0.82}</td>
+                                <td><span class="vector-badge">[-0.021, 0.091, 0.044, ...]</span></td>
+                                <td>Digital Banking</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROW 4: FRIEDAY ENGINE -->
+        <div class="frieday-section">
+            <h2>THE FRIEDAY ENGINE</h2>
+            <p style="max-width: 800px; margin: 0 auto; font-size: 1.1em; color: var(--frie-gray);">
+                The core of Data Alchemy. We bridge media logic and complex industrial needs, transforming raw public data into highly structured, AI-RAG-ready assets for unshakeable decision-making leverage.
+            </p>
+            
+            <div class="big-stat">
+                250,000+ Curated Data Cards & NLP Intelligence Points
+            </div>
+            
+            <p class="text-bold">Exhaustively curated across 15 critical mediums:</p>
+            
+            <div class="media-grid">
+                <div class="media-pill"><i class="fa-solid fa-file-word"></i> DOCX Templates</div>
+                <div class="media-pill"><i class="fa-solid fa-file-powerpoint"></i> PPTX Templates</div>
+                <div class="media-pill"><i class="fa-solid fa-file-excel"></i> XLSX Templates</div>
+                <div class="media-pill"><i class="fa-solid fa-book-journal-whills"></i> ArXiv Journal Summary</div>
+                <div class="media-pill"><i class="fa-solid fa-table"></i> ArXiv Journal Tables</div>
+                <div class="media-pill"><i class="fa-solid fa-chart-pie"></i> ArXiv Journals Figures</div>
+                <div class="media-pill"><i class="fa-regular fa-file-pdf"></i> PDF Report Summary</div>
+                <div class="media-pill"><i class="fa-solid fa-chart-line"></i> PDF Report Statistics</div>
+                <div class="media-pill"><i class="fa-solid fa-table-list"></i> PDF Report Tables</div>
+                <div class="media-pill"><i class="fa-solid fa-image"></i> PDF Report Figures</div>
+                <div class="media-pill"><i class="fa-solid fa-list-check"></i> Course Syllabus</div>
+                <div class="media-pill"><i class="fa-solid fa-desktop"></i> PDF Slides</div>
+                <div class="media-pill"><i class="fa-regular fa-calendar-check"></i> PDF Conferences</div>
+                <div class="media-pill"><i class="fa-brands fa-github"></i> GitHub Repository Summary</div>
+                <div class="media-pill"><i class="fa-solid fa-graduation-cap"></i> Scholarship Corner</div>
+            </div>
+
+            <div class="sector-badge-container">
+                    <p class="text-bold text-accent">Mapped to 69 Strategic Industry Verticals (IDX-IC)</p>
+                    <p style="font-size: 0.85em; margin-bottom: 15px;">Our Data Alchemy covers the full spectrum of the Indonesia Stock Exchange industrial classifications.</p>
+                    
+                    <div class="sector-grid">
+                        <div class="sector-pill">Oil, Gas & Coal</div>
+                        <div class="sector-pill">Oil & Gas Fuels</div>
+                        <div class="sector-pill">Oil & Gas Equipment & Services</div>
+                        <div class="sector-pill">Oil & Gas Drilling</div>
+                        <div class="sector-pill">Oil & Gas Exploration & Production</div>
+                        <div class="sector-pill">Oil & Gas Refining & Marketing</div>
+                        <div class="sector-pill">Oil & Gas Storage & Transportation</div>
+                        <div class="sector-pill">Coal Production</div>
+                        <div class="sector-pill">Coal Support Services</div>
+
+                        <div class="sector-pill">Basic Materials</div>
+                        <div class="sector-pill">Chemicals</div>
+                        <div class="sector-pill">Construction Materials</div>
+                        <div class="sector-pill">Containers & Packaging</div>
+                        <div class="sector-pill">Metals & Mining</div>
+                        <div class="sector-pill">Forestry & Paper</div>
+
+                        <div class="sector-pill">Aerospace & Defense</div>
+                        <div class="sector-pill">Building Products & Fixtures</div>
+                        <div class="sector-pill">Electrical Equipment</div>
+                        <div class="sector-pill">Machinery</div>
+                        <div class="sector-pill">Diversified Industrial Trading</div>
+                        <div class="sector-pill">Commercial Services</div>
+                        <div class="sector-pill">Professional Services</div>
+                        <div class="sector-pill">Multi-sector Holdings</div>
+
+                        <div class="sector-pill">Food & Staples Retailing</div>
+                        <div class="sector-pill">Beverages</div>
+                        <div class="sector-pill">Processed Foods</div>
+                        <div class="sector-pill">Agricultural Products</div>
+                        <div class="sector-pill">Tobacco</div>
+                        <div class="sector-pill">Household Products</div>
+                        <div class="sector-pill">Personal Care Products</div>
+
+                        <div class="sector-pill">Apparel & Luxury Goods</div>
+                        <div class="sector-pill">Automobiles & Components</div>
+                        <div class="sector-pill">Consumer Services</div>
+                        <div class="sector-pill">Media & Entertainment</div>
+                        <div class="sector-pill">Leisure Goods</div>
+                        <div class="sector-pill">Retailing</div>
+                        <div class="sector-pill">Internet & Homeshop Retail</div>
+                        <div class="sector-pill">Department Stores</div>
+                        <div class="sector-pill">Specialty Retail</div>
+
+                        <div class="sector-pill">Healthcare Equipment & Supplies</div>
+                        <div class="sector-pill">Healthcare Providers</div>
+                        <div class="sector-pill">Pharmaceuticals</div>
+                        <div class="sector-pill">Healthcare Research</div>
+
+                        <div class="sector-pill">Banks</div>
+                        <div class="sector-pill">Consumer Financing</div>
+                        <div class="sector-pill">Business Financing</div>
+                        <div class="sector-pill">Investment Services</div>
+                        <div class="sector-pill">Insurance</div>
+                        <div class="sector-pill">Holding & Investment Companies</div>
+
+                        <div class="sector-pill">Real Estate Management & Development</div>
+                        <div class="sector-pill">Real Estate Services</div>
+
+                        <div class="sector-pill">Software & IT Services</div>
+                        <div class="sector-pill">Computer Hardware</div>
+                        <div class="sector-pill">Electronic Equipment & Components</div>
+                        <div class="sector-pill">Semiconductors</div>
+
+                        <div class="sector-pill">Transport Infrastructure Operator</div>
+                        <div class="sector-pill">Heavy Constructions & Civil Engineering</div>
+                        <div class="sector-pill">Telecommunication Service</div>
+                        <div class="sector-pill">Wireless Telecommunication Services</div>
+                        <div class="sector-pill">Electric Utilities</div>
+                        <div class="sector-pill">Gas Utilities</div>
+                        <div class="sector-pill">Water Utilities</div>
+
+                        <div class="sector-pill">Airlines</div>
+                        <div class="sector-pill">Passenger Marine Transportation</div>
+                        <div class="sector-pill">Passenger Land Transportation</div>
+                        <div class="sector-pill">Logistics & Deliveries</div>
+                        <div class="sector-pill">Marine Transportation</div>
+                        <div class="sector-pill">Trucking & Leasing</div>
+                    </div>
+            </div>
+        </div>
+
+        <!-- ROW 5: FAQ -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-card">
+                <details>
+                    <summary>How do I get an API Key?</summary>
+                    <div class="faq-answer">Navigate to our Pricing page and select your tier. Upon registration, your unique Alchemist API Key will be dispatched directly to your registered email address.</div>
+                </details>
+                <details>
+                    <summary>What is the Quota Recovery Rate?</summary>
+                    <div class="faq-answer">Depending on your tier, your API call quota regenerates systematically. Standard keys recover at a rate of 5% of maximum capacity per hour during off-peak periods, ensuring sustainable access.</div>
+                </details>
+                <details>
+                    <summary>Are the Vector Embeddings included?</summary>
+                    <div class="faq-answer">Yes. By using the parameter <code>columns=None</code> in your payload, the Fortress will return the raw 384-dimensional <code>vector_</code> arrays alongside the text data, ready for immediate downstream machine learning tasks.</div>
+                </details>
+                <details>
+                    <summary>How accurate is the RAG Semantic Search?</summary>
+                    <div class="faq-answer">Our hybrid engine combines dense vector similarity (SentenceTransformers) with deterministic NLP keyword bonuses (spaCy). This guarantees that results are both contextually aware and strictly factual to your prompt.</div>
+                </details>
+                <details>
+                    <summary>Can I run this entirely in Google Colab?</summary>
+                    <div class="faq-answer">Absolutely. The Friepedia Client is designed as a "Courier." It is a lightweight pip package containing zero heavy models, perfectly optimized to render our Teal UI natively inside Colab without crashing the runtime.</div>
+                </details>
+                <details>
+                    <summary>How do you handle data hallucinations?</summary>
+                    <div class="faq-answer">Unlike generic LLMs, Friepedia utilizes a strict Retrieval-Augmented Generation methodology atop our human-verified, curated database. The engine cannot "invent" facts; it can only retrieve verified data cards.</div>
+                </details>
+                <details>
+                    <summary>Is the UI customizable?</summary>
+                    <div class="faq-answer">The core <code>friepedia_webinars</code> package uses a strict Teal Alchemist design map to ensure aesthetic consistency. However, developers hitting the Backend API directly can structure the returned JSON in any frontend framework they choose.</div>
+                </details>
+                <details>
+                    <summary>What happens if I exceed my rate limit?</summary>
+                    <div class="faq-answer">The API will return an HTTP 403 Forbidden status with a JSON error detailing your quota exhaustion. You will need to wait for the automatic Quota Recovery cycle or upgrade your tier.</div>
+                </details>
+                <details>
+                    <summary>How are duplicates handled in bulk extraction?</summary>
+                    <div class="faq-answer">Our client-side architecture includes a "First-Discovery" deduplication script. If a semantic search overlaps, the pipeline automatically strips whitespace and removes redundant rows based on the primary Title anchor.</div>
+                </details>
+                <details>
+                    <summary>Do you support cross-sector querying?</summary>
+                    <div class="faq-answer">Yes. A single semantic query can pull relevant insights from FinTech, Energy, and Healthcare simultaneously, displaying exactly which IDX industry the insight belongs to.</div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Logic -->
+    <script>
+        function openTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab and mark button active
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
